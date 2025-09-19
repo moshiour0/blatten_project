@@ -1,14 +1,25 @@
-# Ignore heavy data but keep .gitkeep
-data/blatten_phase1/sentinel1/*
-!data/blatten_phase1/sentinel1/.gitkeep
+# Ignore heavy data files but keep folder structure with .gitkeep
 
-data/blatten_phase1/sentinel2/*
-!data/blatten_phase1/sentinel2/.gitkeep
+# Sentinel-1 and Sentinel-2 data
+data/blatten_phase1/sentinel1/*/*
+data/blatten_phase1/sentinel2/*/*
 
-data/blatten_phase1/derived/*
-!data/blatten_phase1/derived/.gitkeep
+# Derived products
+data/blatten_phase1/derived/*/*
 
-# Python / env
+# Allow .gitkeep in all folders
+!.gitkeep
+
+# SNAP products
+*.dim
+*.data
+
+# Raster & scientific data
+*.tif
+*.nc
+*.zip
+
+# Python / Conda
 __pycache__/
 *.pyc
 *.pyo
@@ -19,6 +30,6 @@ envs/
 *.log
 *.ipynb_checkpoints
 
-# OS files
+# OS junk
 .DS_Store
 Thumbs.db
