@@ -1,0 +1,27 @@
+name: blatten_phase1
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - geopandas
+  - rasterio
+  - shapely
+  - fiona
+  - pyproj
+  - gdal
+  - jupyterlab
+  - pandas
+  - sentinelsat
+  - requests
+  - tqdm
+  - matplotlib
+  - numpy
+  - scikit-image
+  - scikit-learn
+  - netcdf4
+  - pip
+  - pip:
+      - earthengine-api
+      - asf-search
+      - setuptools
+      - wheel
