@@ -1,12 +1,12 @@
-# Ignore heavy data
+# Ignore heavy data but keep .gitkeep
 data/blatten_phase1/sentinel1/*
+!data/blatten_phase1/sentinel1/.gitkeep
+
 data/blatten_phase1/sentinel2/*
+!data/blatten_phase1/sentinel2/.gitkeep
+
 data/blatten_phase1/derived/*
-*.dim
-*.data
-*.tif
-*.nc
-*.zip
+!data/blatten_phase1/derived/.gitkeep
 
 # Python / env
 __pycache__/
