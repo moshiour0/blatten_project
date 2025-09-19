@@ -1,16 +1,23 @@
 # Ignore heavy data files but keep folder structure with .gitkeep
 
-# Sentinel-1/2 and derived big outputs
-data/blatten_phase1/sentinel1/*
-data/blatten_phase1/sentinel2/*
-data/blatten_phase1/derived/*
+# Ignore heavy outputs
+data/blatten_phase1/sentinel1/grd/*
+data/blatten_phase1/sentinel2/slc/*
+data/blatten_phase1/derived/grd_outputs/*
+data/blatten_phase1/derived/s2_resampled/*
+data/blatten_phase1/derived/s2_quicklooks/*
+data/blatten_phase1/derived/slc_outputs/*
+data/blatten_phase1/derived/insar/*
 
-# Re-include .gitkeep inside ignored dirs
-!data/blatten_phase1/sentinel1/**/.gitkeep
-!data/blatten_phase1/sentinel2/**/.gitkeep
-!data/blatten_phase1/derived/**/.gitkeep
-!data/blatten_phase1/glamos/.gitkeep
-!data/blatten_phase1/swiss_infra/.gitkeep
+# Re-include only .gitkeep placeholders
+!data/blatten_phase1/sentinel1/grd/.gitkeep
+!data/blatten_phase1/sentinel2/slc/.gitkeep
+!data/blatten_phase1/derived/grd_outputs/.gitkeep
+!data/blatten_phase1/derived/s2_resampled/.gitkeep
+!data/blatten_phase1/derived/s2_quicklooks/.gitkeep
+!data/blatten_phase1/derived/slc_outputs/.gitkeep
+!data/blatten_phase1/derived/insar/.gitkeep
+
 
 # File types to ignore
 *.dim
