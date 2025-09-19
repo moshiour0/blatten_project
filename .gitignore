@@ -1,0 +1,24 @@
+# Ignore heavy data
+data/blatten_phase1/sentinel1/*
+data/blatten_phase1/sentinel2/*
+data/blatten_phase1/derived/*
+*.dim
+*.data
+*.tif
+*.nc
+*.zip
+
+# Python / env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+envs/
+*.conda
+*.tar.bz2
+*.log
+*.ipynb_checkpoints
+
+# OS files
+.DS_Store
+Thumbs.db
