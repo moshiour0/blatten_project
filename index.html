@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Save Blatten & Beyond — Dashboard</title>
+    <meta name="description" content="SAR-powered rapid response for glacier hazards — Save Blatten & Beyond" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS for utility classes and responsiveness -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin=""/>
+    <!-- Local stylesheet -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- Topbar and Hero Card (unchanged) -->
+    <header class="topbar" role="banner">
+        <div class="topbar-inner">
+            <div class="brand" aria-hidden="true">
+                <div class="brand-title">SPACE APPS CH</div>
+            </div>
+
+            <div class="top-actions" role="navigation" aria-label="top actions">
+                <div id="visitorBadge" class="visitor-badge" title="Number of visitors" aria-live="polite">
+                    <span class="visitor-emoji">👥</span>
+                    <span id="visitCountBadge">0</span>
+                </div>
+                <button class="btn-ghost" type="button">Spece-Apps-CH</button>
+                <button class="avatar" title="User" type="button" aria-label="User profile">🙂</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero" role="region" aria-label="Hero">
+        <div class="hero-card">
+            <div class="hero-left">
+                <div class="kicker">SPACE APPS CH</div>
+                <h1 class="hero-title">SAVE BLATTEN & BEYOND</h1>
+                <p class="hero-sub">Rapid response to natural and man-made disasters — SAR-powered situational awareness.</p>
+                <a class="cta" href="#dashboard">EXPLORE THE PLATFORM</a>
+            </div>
+            <div class="hero-right" aria-hidden="true">
+                <img src="Web_assets/SARGuardians_logo.jpeg" alt="SARGuardians" class="partner-logo"/>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tabs (unchanged) -->
+    <nav class="tabs" aria-label="Main sections">
+        <ul>
+            <li class="active"><a href="#dashboard">DASHBOARD</a></li>
+            <li><a href="#visualizations">VISUALIZATIONS</a></li>
+            <li><a href="#story">STORY</a></li>
+            <li><a href="#about">ABOUT</a></li>
+        </ul>
+    </nav>
+
+    <main class="container" role="main">
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="panel flex flex-col lg:flex-row gap-4 lg:gap-6" aria-labelledby="dashboard-heading">
+            <h2 id="dashboard-heading" class="sr-only">Dashboard</h2>
+
+            <div class="dashboard-left flex-1 min-w-0">
+                <!-- single map container (only one #map used for dashboard) -->
+                <div id="map" class="map" role="region" aria-label="Dashboard map"></div>
+            </div>
+
+            <aside class="dashboard-right w-full lg:w-80 flex flex-col gap-4" aria-labelledby="alerts-heading">
+                
+                <!-- NEW ANALYSIS SETUP CARD -->
+                <div class="card map-search">
+                    <h4>1. ANALYSIS SETUP</h4>
+                    <label for="mapSearchInput" class="block mb-1 text-sm text-gray-400">Set Location (e.g., Blatten)</label>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="mapSearchInput" placeholder="Blatten, Switzerland" value="Blatten, Switzerland" class="flex-1" />
+                        <button id="mapSearchBtn" aria-label="Set Location" type="button" class="px-4 py-2 hover:bg-blue-600 transition-colors">🎯</button>
+                    </div>
+
+                    <label for="timeFrameSelect" class="block mb-1 text-sm text-gray-400">Set Timeframe (S2)</label>
+                    <div class="flex gap-2 mb-3">
+                        <select id="timeFrameSelect" class="flex-1">
+                            <option value="1">1 May 2025 – 1 Jun 2025</option>
+                            <option value="2">Mar 2025 – Jun 2025 (Long Term)</option>
+                        </select>
+                        <button id="timeFrameBtn" aria-label="Search" type="button" class="px-4 py-2 hover:bg-blue-600 transition-colors">🔎</button>
+                    </div>
+
+                    <div class="text-xs text-green-400 mt-2 p-2 bg-gray-800 rounded-lg">
+                        ✅ AOI Polygon established. Search completed over 2 months.
+                        <br>Found **4** low-cloud S2 images: **08/04, 30/04, 18/05, 30/05**.
+                    </div>
+                </div>
+
+                <div class="card alerts">
+                    <h4>2. CRITICAL ALERTS</h4>
+                    <div class="alert-item">
+                        <div class="alert-title critical">⚠️ Confirmed Displacement Alert</div>
+                        <div class="alert-meta text-sm mt-1">S2 Visual Change (B12, B2, B1) confirmed on: <strong>May 18</strong></div>
+                        <div class="alert-meta text-sm mt-1">SAR (InSAR) Max LOS Velocity: <strong>2.5 m/day</strong></div>
+                    </div>
+                    <div class="mini-gauge">
+                        <div class="gauge">2.5 <span>m/day</span></div>
+                    </div>
+                    <small class="text-red-400 block mt-2 text-center">Displacement $> 2.0 \text{ m/day}$ triggers CRITICAL RATING.</small>
+                </div>
+
+                <!-- S2 Animation controls will be injected here by the JS -->
+
+                <div class="card chart">
+                    <h4>3. SAR/InSAR Monitoring (Future)</h4>
+                    <p class="text-sm text-gray-300 mb-2">
+                        **"Live Mode" (Continuous monitoring) is currently unavailable due to hackathon time constraints.**
+                    </p>
+                    <a href="#" id="live-mode-link" class="cta text-xs py-2 px-3 block text-center" style="background:#5277a1; color:#e0f0ff;">
+                        ▶️ Watch the "Live Mode" Concept Video
+                    </a>
+                </div>
+
+                <div class="card layers">
+                    <h4>DATA LAYERS</h4>
+                    <label><input type="checkbox" id="toggle-s2" checked /> Sentinel-2 (B12, B2, B1)</label><br/>
+                    <label><input type="checkbox" id="toggle-vel" checked /> SAR Velocity (InSAR)</label><br/>
+                    <label><input type="checkbox" id="toggle-geo" checked /> Change polygon</label>
+                </div>
+            </aside>
+        </section>
+
+        <!-- VISUALIZATIONS -->
+        <section id="visualizations" class="panel" style="display:none">
+            <h2>DETECTION VISUALIZATIONS: S2 & SAR Data Fusion</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                <div class="viz-card">
+                    <img src="https://placehold.co/300x160/1a3f66/ffffff?text=S2+B12-B2-B1" alt="Sentinel-2 custom RGB" />
+                    <h4>S2 Custom RGB (B12, B2, B1)</h4>
+                    <p>Optical composite designed to highlight reddish-brown displaced soil (change detection).</p>
+                </div>
+                <div class="viz-card">
+                    <img src="https://placehold.co/300x160/ff3b3b/ffffff?text=Velocity+Map" alt="InSAR Velocity" />
+                    <h4>InSAR Velocity (m/day) - SLC</h4>
+                    <p>Millimeter-precision displacement measurement towards or away from the satellite line-of-sight.</p>
+                </div>
+                <div class="viz-card">
+                    <img src="https://placehold.co/300x160/ffc107/333333?text=Coherence" alt="Coherence map" />
+                    <h4>InSAR Coherence Map (SLC)</h4>
+                    <p>Measures stability; low coherence indicates structural change or rapid deformation over time.</p>
+                </div>
+                <div class="viz-card">
+                    <img src="https://placehold.co/300x160/0d2230/ffffff?text=RGB+True+Color" alt="RGB True Color" />
+                    <h4>S2 True Color (B4, B3, B2)</h4>
+                    <p>Standard visualization. Used here to filter cloud cover and provide base context for the AOI.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Story, Features, Quote, Footer (unchanged except story-map removed) -->
+        <section id="story" class="panel" style="display:none">
+            <h2>STORY MAP</h2>
+
+            <div class="story-wrap">
+                <nav id="story-left" class="story-left" aria-label="Story chapters">
+                    <ul class="story-list">
+                        <li class="story-item active" data-step="0" tabindex="0" role="button" aria-pressed="true">
+                            <div class="story-title">Introduction</div>
+                            <div class="story-teaser">May 28, 2025 — Blatten suffered a catastrophic glacier collapse. Early SAR signals helped authorities evacuate residents.</div>
+                        </li>
+                        <li class="story-item" data-step="1" tabindex="0" role="button" aria-pressed="false">
+                            <div class="story-title">Early Warning Signals</div>
+                            <div class="story-teaser">Multi-temporal SAR showed rapid acceleration — velocity climbed from ~0.8 to 2.0 m/day in days before failure.</div>
+                        </li>
+                        <li class="story-item" data-step="2" tabindex="0" role="button" aria-pressed="false">
+                            <div class="story-title">The Collapse</div>
+                            <div class="story-teaser">On the event day a 3.1 local seismic shock occurred and the glacier gave way with large hazard footprint.</div>
+                        </li>
+                        <li class="story-item" data-step="3" tabindex="0" role="button" aria-pressed="false">
+                            <div class="story-title">Community Response</div>
+                            <div class="story-teaser">Emergency access roads, shelters and provisional utilities were established; evacuation saved many lives.</div>
+                        </li>
+                        <li class="story-item" data-step="4" tabindex="0" role="button" aria-pressed="false">
+                            <div class="story-title">Future Resilience</div>
+                            <div class="story-teaser">Planning for 'New Blatten' focuses on persistent monitoring, resilient infrastructure, and community preparedness.</div>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="story-right">
+                    <!-- story-map intentionally removed; story content area remains -->
+                    <section id="story-content" class="story-content" aria-live="polite">
+                    </section>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="panel" style="display:none">
+            <h2>ABOUT</h2>
+            <p>About content goes here.</p>
+        </section>
+
+        <section class="features">
+            <div class="features-inner">
+                <div class="feature"><div class="icon">🛰</div><div>Earth Observation</div></div>
+                <div class="feature"><div class="icon">🌐</div><div>Global Coverage</div></div>
+                <div class="feature"><div class="icon">⚠️</div><div>Rapid Response</div></div>
+                <div class="feature"><div class="icon">📊</div><div>Data Science & AI</div></div>
+            </div>
+        </section>
+
+        <section class="quote">
+            <blockquote>"Code for humanity. Build for resilience." <cite>— NASA Space Apps Challenge 2025</cite></blockquote>
+        </section>
+    </main>
+
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-inner">
+            <div>© Save Blatten & Beyond</div>
+            <div class="social">Follow: <a href="#" rel="noopener">Twitter</a> • <a href="#" rel="noopener">GitHub</a></div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS (keeps map functionality for dashboard) -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+    <!-- Local script (index.js) will be loaded below -->
+    <script src="index.js"></script>
+</body>
+</html>

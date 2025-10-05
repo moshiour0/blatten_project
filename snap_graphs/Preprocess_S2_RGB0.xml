@@ -1,0 +1,77 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <useAdvancedOptions>false</useAdvancedOptions>
+      <file>D:\blatten_project\data\blatten_phase1\sentinel2\l2a\zip\S2A_MSIL2A_20250530T103041_N0511_R108_T32TMS_20250530T142711.SAFE.zip</file>
+      <copyMetadata>true</copyMetadata>
+      <bandNames>B1,B2,B12,quality_aot,quality_wvp,quality_cloud_confidence,quality_snow_confidence,quality_scene_classification,B_detector_footprint_B1,B_detector_footprint_B2,B_detector_footprint_B12,B_ancillary_lost_B1,B_ancillary_degraded_B1,B_msi_lost_B1,B_msi_degraded_B1,B_defective_B1,B_nodata_B1,B_partially_corrected_crosstalk_B1,B_saturated_l1a_B1,B_ancillary_lost_B2,B_ancillary_degraded_B2,B_msi_lost_B2,B_msi_degraded_B2,B_defective_B2,B_nodata_B2,B_partially_corrected_crosstalk_B2,B_saturated_l1a_B2,B_ancillary_lost_B12,B_ancillary_degraded_B12,B_msi_lost_B12,B_msi_degraded_B12,B_defective_B12,B_nodata_B12,B_partially_corrected_crosstalk_B12,B_saturated_l1a_B12,B_opaque_clouds,B_cirrus_clouds,B_snow_and_ice_areas,view_zenith_mean,view_azimuth_mean,sun_zenith,sun_azimuth,view_zenith_B1,view_azimuth_B1,view_zenith_B2,view_azimuth_B2,view_zenith_B12,view_azimuth_B12</bandNames>
+      <pixelRegion>0,0,10980,10980</pixelRegion>
+      <maskNames>detector_footprint-B01-01,detector_footprint-B01-02,detector_footprint-B01-12,detector_footprint-B02-01,detector_footprint-B02-02,detector_footprint-B02-12,detector_footprint-B12-01,detector_footprint-B12-02,detector_footprint-B12-12,ancillary_lost_B1,ancillary_degraded_B1,msi_lost_B1,msi_degraded_B1,defective_B1,nodata_B1,partially_corrected_crosstalk_B1,saturated_l1a_B1,ancillary_lost_B2,ancillary_degraded_B2,msi_lost_B2,msi_degraded_B2,defective_B2,nodata_B2,partially_corrected_crosstalk_B2,saturated_l1a_B2,ancillary_lost_B12,ancillary_degraded_B12,msi_lost_B12,msi_degraded_B12,defective_B12,nodata_B12,partially_corrected_crosstalk_B12,saturated_l1a_B12,opaque_clouds,cirrus_clouds,snow_and_ice_areas,scl_nodata,scl_saturated_defective,scl_topographic_and_casted_shadows,scl_cloud_shadow,scl_vegetation,scl_not_vegetated,scl_water,scl_unclassified,scl_cloud_medium_proba,scl_cloud_high_proba,scl_thin_cirrus,scl_snow_ice</maskNames>
+    </parameters>
+  </node>
+  <node id="Resample">
+    <operator>Resample</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <referenceBand/>
+      <targetWidth/>
+      <targetHeight/>
+      <targetResolution>10</targetResolution>
+      <upsampling>Nearest</upsampling>
+      <downsampling>First</downsampling>
+      <flagDownsampling>First</flagDownsampling>
+      <resamplingPreset/>
+      <bandResamplings/>
+      <resampleOnPyramidLevels>true</resampleOnPyramidLevels>
+    </parameters>
+  </node>
+  <node id="Subset">
+    <operator>Subset</operator>
+    <sources>
+      <sourceProduct refid="Resample"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands>B1,B2,B3,B4,B12</sourceBands>
+      <tiePointGrids/>
+      <region>0,0,0,0</region>
+      <referenceBand/>
+      <geoRegion>POLYGON ((7.742000102996826 46.380001068115234, 7.89900016784668 46.380001068115234, 7.89900016784668 46.452999114990234, 7.742000102996826 46.452999114990234, 7.742000102996826 46.380001068115234, 7.742000102996826 46.380001068115234))</geoRegion>
+      <subSamplingX>1</subSamplingX>
+      <subSamplingY>1</subSamplingY>
+      <fullSwath>false</fullSwath>
+      <vectorFile/>
+      <polygonRegion/>
+      <copyMetadata>true</copyMetadata>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Subset"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>D:\blatten_project\data\blatten_phase1\derived\sentinel2_outputs\Subset_S2A_MSIL2A_20250530T103041_N0511_R108_T32TMS_20250530T142711_resampled.tif</file>
+      <formatName>GeoTIFF</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+      <displayPosition x="17.0" y="168.0"/>
+    </node>
+    <node id="Resample">
+      <displayPosition x="132.0" y="166.0"/>
+    </node>
+    <node id="Subset">
+      <displayPosition x="269.0" y="165.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="397.0" y="166.0"/>
+    </node>
+  </applicationData>
+</graph>
