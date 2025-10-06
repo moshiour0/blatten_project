@@ -250,7 +250,6 @@ async function incrementVisitorCounter() {
     }
   }
 }
-
     // --- Story interactivity ---
     (function () {
         const steps = [
