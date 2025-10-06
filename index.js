@@ -97,18 +97,18 @@
                 
                 // add if toggle is checked
                 const tGeo = $('#toggle-geo');
-                if (tGeo && tGeo.checked) geoJsonLayer.addTo(map);
+                if (tGeo && tGeo.checked && map) geoJsonLayer.addTo(map);
                 
                 // wire toggle if not already wired
                 if (tGeo && !tGeo._geoToggled) {
                     tGeo._geoToggled = true;
                     tGeo.addEventListener('change', (ev) => {
-                        if (!geoJsonLayer) return;
+                        if (!geoJsonLayer || !map) return;
                         ev.target.checked ? map.addLayer(geoJsonLayer) : map.removeLayer(geoJsonLayer);
                     });
                 }
                 // fit to bounds if possible
-                try { map.fitBounds(geoJsonLayer.getBounds(), { padding: [30, 30] }); } catch (e) {}
+                try { if (map) map.fitBounds(geoJsonLayer.getBounds(), { padding: [30, 30] }); } catch (e) {}
                 console.log('Loaded GeoJSON from', url);
                 return;
             } catch (err) {
@@ -153,8 +153,8 @@
         if (id === 'dashboard') {
             initMapIfNeeded();
             setTimeout(() => {
-                try { map.invalidateSize(true); } catch (e) {}
-                if (geoJsonLayer) {
+                try { if (map) map.invalidateSize(true); } catch (e) {}
+                if (geoJsonLayer && map) {
                     // Ensure the map focuses on the AOI polygon when navigating back to dashboard
                     try { map.fitBounds(geoJsonLayer.getBounds(), { padding: [30, 30] }); } catch (e) {}
                 }
@@ -250,6 +250,7 @@ async function incrementVisitorCounter() {
     }
   }
 }
+
     // --- Story interactivity ---
     (function () {
         const steps = [
@@ -322,12 +323,14 @@ async function incrementVisitorCounter() {
             const s = steps[idx];
             if (!s) return;
             const content = document.getElementById('story-content');
-            content.innerHTML = `
-                <h3>${s.title}</h3>
-                <div class="meta">${s.meta}</div>
-                ${s.html}
-                ${s.img ? `<img src="${s.img}" alt="${s.title}" class="story-img">` : ''}
-            `;
+            if (content) {
+                content.innerHTML = `
+                    <h3>${s.title}</h3>
+                    <div class="meta">${s.meta}</div>
+                    ${s.html}
+                    ${s.img ? `<img src="${s.img}" alt="${s.title}" class="story-img">` : ''}
+                `;
+            }
             initStoryMap();
             if (storyMap) {
                 try {
@@ -367,6 +370,17 @@ async function incrementVisitorCounter() {
     // --- End Story interactivity ---
 
 
+    // --- Small visitor-badge compatibility wrappers (safe, minimal) ---
+    function showLocalVisit(){
+      const badge = document.getElementById('visitCountBadge');
+      if (!badge) return;
+      const prev = localStorage.getItem('saveblatten_visits_v1');
+      if (prev) badge.textContent = prev;
+    }
+    function tryServerVisit(){
+      if (typeof incrementVisitorCounter === 'function') incrementVisitorCounter();
+    }
+
     // --- Core Initialization ---
     document.addEventListener('DOMContentLoaded', () => {
         // 1. Initialize core map, tabs, and visitor count
@@ -385,7 +399,7 @@ async function incrementVisitorCounter() {
         const BLATTEN_LABEL = "Blatten, Switzerland (AOI Center)";
 
         const performSearch = async () => {
-            const q = searchInput.value.trim();
+            const q = (searchInput && searchInput.value) ? searchInput.value.trim() : '';
             if (!q) return;
 
             // For the demo, we assume Blatten is searched and center the map there
@@ -395,7 +409,7 @@ async function incrementVisitorCounter() {
                 // Use Nominatim for address search (optional, but good practice)
                 try {
                     const results = await geocodeNominatim(q);
-                    if (results.length > 0) {
+                    if (results && results.length > 0) {
                         const result = results[0];
                         placeSearchMarker(parseFloat(result.lat), parseFloat(result.lon), result.display_name);
                     } else {
@@ -410,8 +424,8 @@ async function incrementVisitorCounter() {
         // Execute the default search immediately to set the AOI
         performSearch(); 
 
-        searchBtn.addEventListener('click', performSearch);
-        searchInput.addEventListener('keydown', (e) => {
+        if (searchBtn) searchBtn.addEventListener('click', performSearch);
+        if (searchInput) searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') performSearch();
         });
 
@@ -463,13 +477,17 @@ async function incrementVisitorCounter() {
             controlsContainer.style.marginBottom = '12px';
             
             const rightSidebar = document.querySelector('.dashboard-right');
-            // Find the alert card and insert before it
-            const alertCard = rightSidebar.querySelector('.card.alerts');
+            // Find the alert card and insert before it — fallback to append if not found
+            let alertCard = null;
+            if (rightSidebar) alertCard = rightSidebar.querySelector('.card.alerts');
             if (rightSidebar && alertCard) {
                 rightSidebar.insertBefore(controlsContainer, alertCard.nextSibling);
+            } else if (rightSidebar) {
+                rightSidebar.appendChild(controlsContainer);
             } else {
-                console.error("Could not find dashboard-right to insert S2 animation controls.");
-                return; // Exit if we can't place the controls
+                // fallback: append to body so controls are accessible (but log so we can debug layout)
+                document.body.appendChild(controlsContainer);
+                console.warn("dashboard-right not found — injecting S2 controls into <body> as fallback.");
             }
 
             // Build inner HTML for controls
@@ -495,6 +513,16 @@ async function incrementVisitorCounter() {
                 </div>
             `;
 
+            // ensure map exists (try to initialize if not)
+            if (!map) {
+                initMapIfNeeded();
+                if (!map) {
+                    console.error('Map not initialized; skipping S2 animation setup.');
+                    controlsContainer.style.display = 'none';
+                    return;
+                }
+            }
+
             // create the image overlay (initial frame will be frames[0])
             const firstFrameUrl = frames[0];
             let frameOverlay = L.imageOverlay(firstFrameUrl, OVERLAY_BOUNDS, {opacity: 0.95}).addTo(map);
@@ -515,10 +543,10 @@ async function incrementVisitorCounter() {
                 }).addTo(map);
                 changeLayer.eachLayer(l => { l.setStyle({fillOpacity:0, opacity:0}); }); // Hide initially
             }).catch(err => {
-                console.error('No change geojson loaded (this is expected if the file is not on the server):', err.message);
+                console.error('No change geojson loaded (this is expected if the file is not on the server):', err && err.message ? err.message : err);
             });
 
-            // UI helper refs
+            // UI helper refs (guard in case something didn't mount)
             const elFrame = document.getElementById('anim-frame-label');
             const elDate = document.getElementById('anim-date-label');
             const elPlay = document.getElementById('anim-play');
@@ -534,13 +562,24 @@ async function incrementVisitorCounter() {
                 if (idx >= frames.length) idx = frames.length - 1;
                 currentIndex = idx;
                 
-                const url = frames[idx]; 
-                
-                map.removeLayer(frameOverlay);
-                frameOverlay = L.imageOverlay(url, OVERLAY_BOUNDS, {opacity:0.95}).addTo(map);
+                const url = frames[idx];
 
-                elFrame.textContent = `${idx+1} / ${frames.length}`;
-                elDate.textContent = dates[idx] || 'unknown';
+                // Prefer setUrl if available to avoid creating a new overlay each time
+                if (frameOverlay && typeof frameOverlay.setUrl === 'function') {
+                    try {
+                        frameOverlay.setUrl(url);
+                    } catch (e) {
+                        // fallback to recreate
+                        try { map.removeLayer(frameOverlay); } catch (_) {}
+                        frameOverlay = L.imageOverlay(url, OVERLAY_BOUNDS, {opacity:0.95}).addTo(map);
+                    }
+                } else {
+                    try { map.removeLayer(frameOverlay); } catch (_) {}
+                    frameOverlay = L.imageOverlay(url, OVERLAY_BOUNDS, {opacity:0.95}).addTo(map);
+                }
+
+                if (elFrame) elFrame.textContent = `${idx+1} / ${frames.length}`;
+                if (elDate) elDate.textContent = dates[idx] || 'unknown';
 
                 // show/hide change polygon & alert
                 const isChangeFrame = (idx >= changeFrameIndex);
@@ -559,20 +598,18 @@ async function incrementVisitorCounter() {
                 }
 
                 // Toggle alert box (S2 visual change alert)
-                if (isChangeFrame) elAlert.style.display = 'block';
-                else elAlert.style.display = 'none';
+                if (elAlert) {
+                    if (isChangeFrame) elAlert.style.display = 'block';
+                    else elAlert.style.display = 'none';
+                }
                 
                 // Update play button visual state
                 if (timer) {
-                    elPlay.style.background = '#ccc';
-                    elPlay.style.color = '#333';
-                    elPause.style.background = '#ffc107'; // Highlight pause
-                    elPause.style.color = '#333';
+                    if (elPlay) { elPlay.style.background = '#ccc'; elPlay.style.color = '#333'; }
+                    if (elPause) { elPause.style.background = '#ffc107'; elPause.style.color = '#333'; }
                 } else {
-                    elPlay.style.background = '#007bff'; // Highlight play
-                    elPlay.style.color = 'white';
-                    elPause.style.background = '#ccc';
-                    elPause.style.color = '#333';
+                    if (elPlay) { elPlay.style.background = '#007bff'; elPlay.style.color = 'white'; }
+                    if (elPause) { elPause.style.background = '#ccc'; elPause.style.color = '#333'; }
                 }
             }
 
@@ -602,12 +639,12 @@ async function incrementVisitorCounter() {
                 showFrame((currentIndex + 1) % frames.length);
             }
 
-            // bind UI
-            elPlay.addEventListener('click', () => { play(); });
-            elPause.addEventListener('click', () => { pause(); });
-            elPrev.addEventListener('click', () => { prev(); });
-            elNext.addEventListener('click', () => { next(); });
-            elSpeed.addEventListener('input', (ev) => {
+            // bind UI (guard existence)
+            if (elPlay) elPlay.addEventListener('click', () => { play(); });
+            if (elPause) elPause.addEventListener('click', () => { pause(); });
+            if (elPrev) elPrev.addEventListener('click', () => { prev(); });
+            if (elNext) elNext.addEventListener('click', () => { next(); });
+            if (elSpeed) elSpeed.addEventListener('input', (ev) => {
                 intervalMs = maxInterval - parseInt(ev.target.value, 10) + minInterval; 
                 if (timer) { pause(); play(); } 
             });

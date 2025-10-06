@@ -2,7 +2,7 @@
 // Vercel serverless proxy for CounterAPI (preserve behavior, robust fetch fallback)
 
 export default async function handler(req, res) {
-  // Allow CORS so your GitHub Pages site or other frontends can call this endpoint.
+  // Allow CORS so your frontends can call this endpoint.
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -11,8 +11,8 @@ export default async function handler(req, res) {
     return res.status(204).end();
   }
 
-  // Ensure we have a fetch implementation (Node 18+ on Vercel has global fetch).
-  let fetchFn = global.fetch || (globalThis && globalThis.fetch);
+  // Ensure fetch is available (Node 18+ on Vercel has global fetch).
+  let fetchFn = (typeof fetch !== 'undefined' && fetch) || (globalThis && globalThis.fetch);
   if (!fetchFn) {
     try {
       const nodeFetch = await import('node-fetch');
@@ -25,9 +25,7 @@ export default async function handler(req, res) {
 
   try {
     // Call the CounterAPI on the server side (not blocked by browser extensions)
-    const upstream = await fetchFn('https://api.counterapi.dev/v2/sarguardians/sarguardians/up', {
-      method: 'GET'
-    });
+    const upstream = await fetchFn('https://api.counterapi.dev/v2/sarguardians/sarguardians/up', { method: 'GET' });
 
     // try to parse JSON safely
     let data = null;
