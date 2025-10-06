@@ -186,7 +186,19 @@ async function incrementVisitorCounter() {
   const badge = document.getElementById('visitCountBadge');
   if (!badge) return;
 
-  // ✅ USE YOUR VERCEL API:
+  const alreadyCountedKey = 'saveblatten_already_counted';
+
+  // ✅ Prevent multiple increments for the same visitor
+  if (localStorage.getItem(alreadyCountedKey) === '1') {
+    // Just load the last known value from localStorage and display
+    const prev = parseInt(localStorage.getItem('saveblatten_visits_v1') || '0', 10);
+    badge.textContent = prev;
+    badge.dataset.local = '1';
+    badge.title = 'Not incremented again';
+    return;
+  }
+
+  // ✅ Continue with the existing fetch logic...
   const proxyEndpoint = 'https://blatten-project.vercel.app/api/counter';
   const fallbackKey = 'saveblatten_visits_v1';
 
@@ -217,16 +229,17 @@ async function incrementVisitorCounter() {
 
     const data = await resp.json();
     const up =
-      (data && data.data && data.data.up_count) ||
+      (data?.data?.up_count) ||
       data.value ||
       data.count ||
       (typeof data.data === 'number' && data.data);
 
     if (up !== undefined && up !== null) {
       setBadge(Number(up), { local: false });
-      try {
-        localStorage.setItem(fallbackKey, String(up));
-      } catch (_) {}
+
+      // ✅ Remember both the value and the fact that we've incremented
+      localStorage.setItem(fallbackKey, String(up));
+      localStorage.setItem(alreadyCountedKey, '1');
       return;
     }
 
@@ -250,6 +263,7 @@ async function incrementVisitorCounter() {
     }
   }
 }
+
 
     // --- Story interactivity ---
     (function () {
